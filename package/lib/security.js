@@ -18,7 +18,7 @@ module.exports=function(daoFactory, opts){
   var _ = require('lodash');
   var moment = require('moment');
   var uuid = require('uuid');
-  var bcrypt = require('bcrypt');
+  var bcrypt = require('bcryptjs');
 
   var User = daoFactory.User();
   var UserRole = daoFactory.UserRole();
