@@ -1,6 +1,6 @@
 {
   "name": "@apigrate/shield",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Security for express-based webapps.",
   "main": "index.js",
   "dependencies": {
