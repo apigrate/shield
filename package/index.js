@@ -1,6 +1,6 @@
 /**
   Wrapper for handling authentication and route security.
-
+  @version 0.6.2
   @param {object} pool a mysql database pool.
   @param {object} opts an options object.
   @example opts
