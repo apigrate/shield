@@ -1,14 +1,14 @@
 {
   "name": "@apigrate/shield",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Security for express-based webapps.",
   "main": "index.js",
   "dependencies": {
     "@apigrate/mysqlutils": "^1.1.2",
     "bcryptjs": "^2.4.3",
-    "lodash": "^4.17.5",
-    "moment": "^2.20.1",
-    "winston": "^2.4.0"
+    "lodash": "^4.17.11",
+    "moment": "^2.22.2",
+    "winston": "^2.4.4"
   },
   "devDependencies": {},
   "scripts": {

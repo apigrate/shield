@@ -25,9 +25,13 @@ module.exports=function(pool, opts){
   if(!opts.security_logger){
       opts.security_logger = winston.loggers.get('security');
   }
+
   var LOGGER = opts.security_logger;
 
-  var daoFactory = require('./lib/db/database')(pool, opts.dblogger);
+  if(!opts.db_logger){
+      opts.db_logger = winston.loggers.get('db');
+  }
+  var daoFactory = require('./lib/db/database')(pool, opts.db_logger);
   var security = require('./lib/security')(daoFactory, opts);
 
 
