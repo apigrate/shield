@@ -19,14 +19,14 @@ var verbose = require('debug')('gr8:security:verbose');
     salt_rounds: 15,
     security_logger: <winston logger>
   }
-  @module security
+  @version 2.0.2
 */
 class AuthService {
-  constructor (daoFactory, opts) {
+  constructor(daoFactory, opts) {
     this.userDao = daoFactory.User();
     this.userRoleDao = daoFactory.UserRole();
-    this.max_bad_logins = opts.max_bad_logins || 10;
-    this.salt_rounds = opts.salt_rounds || 5;
+    this.max_bad_logins = opts ? opts.max_bad_logins || 10 : 10;
+    this.salt_rounds = opts ? opts.salt_rounds || 5 : 5;
   }
 
   /**
@@ -42,21 +42,20 @@ class AuthService {
   async login(username, plainTextPassword) {
     if (_.isNil(username) || _.isNil(plainTextPassword)) {
       debug('Failed login. Both a username and a password are required.');
-      throw  new Error('Invalid credentials.');
+      throw new Error('Invalid credentials.');
     }
 
-    var theUser = null;
     verbose('Beginning login process...');
     let theUser = await this.userDao.one({ username: username });
     if (_.isEmpty(theUser)) {
       throw new UserNotFoundError('Invalid credentials.');
     }
-            
+
     verbose('Attempting password comparison...');
     let isMatch = await bcrypt.compare(plainTextPassword, theUser.password);
     if (isMatch) {
       verbose('Comparison succeeded...');
-       if (theUser.must_reset_password) {
+      if (theUser.must_reset_password) {
         verbose('User must reset password.');
         throw new PasswordExpiredError('Your password has expired and must be reset.');
       }
@@ -91,11 +90,11 @@ class AuthService {
       }
       verbose('Updating invalid login statistics.');
       await this.userDao.update(theUser);
-      throw new InvalidPasswordError('Passwords do not match.');
-      
+      throw new InvalidPasswordError('Invalid credentials.');
+
     }
   }
-  
+
   /**
    * Validates a user exists and then generates a reset password token for that user.
    * The user (with the reset_password_token) is then returned via Promise.
@@ -116,7 +115,7 @@ class AuthService {
     verbose('Updating the user with the password reset token which expires at: ' + theUser.reset_password_token_expires);
     theUser = await this.userDao.update(theUser);
     return theUser; //will contain the reset_password_token for use.
-         
+
   }
 
   /**
@@ -144,7 +143,7 @@ class AuthService {
       //Salt and hash the password
       verbose('  Hashing password.');
       let hash = await bcrypt.hash(newPlainTextPassword, this.salt_rounds);
-      
+
       verbose('  Updating user.')
       //Reset counters, clear the token
       user.password = hash;
@@ -160,9 +159,17 @@ class AuthService {
 }//AuthService class
 
 exports.AuthService = AuthService;
-exports.UserNotFoundError = class UserNotFoundError extends Error { }
-exports.UserSuspendedError = class UserSuspendedError extends Error { }
-exports.PasswordExpiredError = class PasswordExpiredError extends Error { }
-exports.InvalidPasswordError = class InvalidPasswordError extends Error { }
-exports.InvalidResetTokenError = class InvalidResetTokenError extends Error { }
-exports.ExpiredResetTokenError = class ExpiredResetTokenError extends Error { }
+
+class UserNotFoundError extends Error { }
+class UserSuspendedError extends Error { }
+class PasswordExpiredError extends Error { }
+class InvalidPasswordError extends Error { }
+class InvalidResetTokenError extends Error { }
+class ExpiredResetTokenError extends Error { }
+
+exports.UserNotFoundError = UserNotFoundError;
+exports.UserSuspendedError = UserSuspendedError;
+exports.PasswordExpiredError = PasswordExpiredError;
+exports.InvalidPasswordError = InvalidPasswordError;
+exports.InvalidResetTokenError = InvalidResetTokenError;
+exports.ExpiredResetTokenError = ExpiredResetTokenError;
