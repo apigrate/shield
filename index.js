@@ -25,6 +25,8 @@ class AuthService {
   constructor (daoFactory, opts) {
     this.userDao = daoFactory.User();
     this.userRoleDao = daoFactory.UserRole();
+    this.max_bad_logins = opts.max_bad_logins || 10;
+    this.salt_rounds = opts.salt_rounds || 5;
   }
 
   /**
@@ -83,8 +85,7 @@ class AuthService {
       verbose('Password does not match.');
       //Increment bad login attempts and/or flag password reset.
       theUser.bad_login_attempts++;
-      var max_bad_logins = opts.max_bad_logins || 10;
-      if (theUser.bad_login_attempts >= max_bad_logins) {
+      if (theUser.bad_login_attempts >= this.max_bad_logins) {
         //suspend the user.
         theUser.status = 'suspended';
       }
@@ -142,7 +143,7 @@ class AuthService {
     } else {
       //Salt and hash the password
       verbose('  Hashing password.');
-      let hash = await bcrypt.hash(newPlainTextPassword, opts.salt_rounds);
+      let hash = await bcrypt.hash(newPlainTextPassword, this.salt_rounds);
       
       verbose('  Updating user.')
       //Reset counters, clear the token
